@@ -7,7 +7,8 @@ in_range min max x = let lb = min <= x
                         lb && ub
 
 -- factorial style 1
-fac n  | n == 0 = 1
+fac n  | n < 0 = 0
+       | n == 0 = 1
        | otherwise = n * fac (n-1)
 
 
@@ -64,7 +65,7 @@ elem' e (x:xs) | x == e = True
 nub' :: (Eq a) => [a] -> [a]
 nub' [] = []
 --nub' (x:xs) = if not (elem' x xs) then x:nub'(xs) else nub'(xs)
-nub' (x:xs) | elem' x xs = nub' xs
+nub' (x:xs) | elem' x xs == True = nub' xs
             | otherwise = x : nub' xs
 
 -- #3 Is ascending order list
@@ -99,14 +100,155 @@ zip' _ [] = []
 zip' (x:xs) (y:ys) = (x, y) : zip' xs ys
 
 positions :: Eq a => a -> [a] -> [Int]
-positions x xs = [ i | (i, x') <- zip [0..] xs,  x' == x  ]
+positions x xs = [ i | (i, x') <- zip' [0..] xs,  x' == x  ]
 
 char2int :: Char -> Int
-int2char :: Int -> Char
 char2int c = ord c  - ord 'a'
+
+int2char :: Int -> Char
 int2char i = chr(ord 'a' + i)
 
 shift :: Int -> Char -> Char
 shift n c | isLower c = int2char( (char2int(c) + n)  `mod` 26)
           | otherwise = c
 
+encode :: Int -> String -> String
+encode n xs = [ shift n x | x <- xs ]
+
+-- Nested loops
+-- Tuples of 0 <= x <= m and 0 <= y << n for all (x, y)
+grid :: Int -> Int -> [(Int, Int)]
+grid m n = [ (x, y) | x <- [0..m], y <- [0..n] ]
+
+-- replicate Int n times
+replicate' :: Int -> a -> [a]
+replicate' n a = [ a | _ <- [1..n] ]
+
+-- Pythagorian triples
+pyths :: Int -> [(Int, Int, Int)]
+pyths n = [ (a, b, c) | a <- [1..n], b <- [1..n], c <- [b..n], c^2 == a^2 + b^2 ]
+
+-- Factors of a number n
+factors' :: Int -> [Int]
+factors' n = [ x | x <- [1..n], n `mod` x == 0 ]
+
+-- Is the number a prime number
+isPrime' :: Int -> Bool
+isPrime' n = factors' n == [1, n]
+
+-- Perfect first n numbers
+perfect' :: Int -> [Int]
+perfect' n = [ x | x <- [1..n], sum (init (factors'  x)) == x ]
+
+-- Length of a list
+length' :: [a] -> Int
+length' [] = 0
+length' (_:xs) = 1 + length' xs
+
+-- Reverse a list
+reverse' :: [a] -> [a]
+reverse' [] = []
+reverse' (x:xs) = reverse' xs Prelude.++ [x]
+
+-- Concat two lists
+(+#) :: [a] -> [a] -> [a]
+[] +# ys  = ys
+(x:xs) +# ys = x : (xs +# ys)
+
+-- Insert a elemement in a sorted array
+insert :: Ord a => a -> [a] -> [a]
+insert e [] = [e]
+insert e (x:xs) | e < x = e : x : xs
+                | otherwise = x : insert e xs
+
+
+-- Insertion sort
+isort :: Ord a => [a] -> [a]
+isort [] = []
+isort (x:xs) = insert x (isort xs)
+
+drop' :: Int -> [a] -> [a]
+drop' 0 xs = xs
+drop' _ [] = []
+drop' n (_:xs) = drop' (n - 1) xs
+
+-- nth fibonacci number
+fib :: Int -> Int
+fib 0 = 0
+fib 1 = 1
+fib n = fib (n-1) + fib(n-2)
+
+-- mutual recursion of even and odd
+even' :: Int -> Bool
+even' 0 = True
+even' n = odd' (n-1)
+
+odd' :: Int -> Bool
+odd' 0 = False
+odd' n = even' (n-1)
+
+-- Even or Odd index positions - starting with zero index
+getEvens :: [a] -> [a]
+getEvens [] = []
+getEvens (x:xs) = x : getOdds xs 
+
+getOdds :: [a] -> [a]
+getOdds [] = []
+getOdds (_:xs) = getEvens xs
+
+-- init, remove last element of a list
+init' :: [a] -> [a]
+init' [] = []
+init' [_] = []
+init' (x:xs) = x : init' xs
+
+-- sumdown. add numbers from n, n-1, ... 0
+sumdown :: Int -> Int
+sumdown n | n == 0 = 0
+          | otherwise = n + sumdown (n - 1)
+
+-- Exponential operator
+(^#) :: Int -> Int -> Int
+_ ^# 0 = 1
+a ^# b = a * (a ^# (b-1))
+
+-- Euclid gcd - subtract smaller number from larger up until they are equal
+euclid :: Int -> Int -> Int
+euclid a b | a == b = a
+           | a < b = euclid a (b-a)
+           | otherwise = euclid (a-b) b
+
+-- and' all True in list
+and' :: [Bool] -> Bool
+and' [] = True
+and' [x] = x
+and' (x:xs) | x == False = False
+            | otherwise = and' xs
+
+-- concatanate list of lists
+concat' :: [[a]] -> [a]
+concat' [] = []
+concat' (x:xs) = x ++ concat' xs
+
+-- replicate a n times
+repls' :: Int -> a -> [a]
+repls' 0 _ = []
+repls' n x = [x] ++ repls' (n-1) x
+
+-- select the nth elemment of a list
+(!#) :: [a] -> Int -> a
+(x:_) !# 0 = x
+(_:xs) !# n = xs !# (n-1)
+
+-- is element e in the list
+elems :: Eq a => a -> [a] -> Bool
+elems _ [] = False
+elems e (x:xs) | e == x = True
+               | otherwise = elems e xs
+
+-- merge two sorted lists into one sorted list
+merge :: Ord a => [a] -> [a] -> [a]
+merge [] y = y
+merge x [] = x
+merge (x:xs) (y:ys) | x < y = x : merge xs (y:ys)
+                    | otherwise = y : merge (x:xs) ys
