@@ -218,12 +218,12 @@ euclid a b | a == b = a
            | a < b = euclid a (b-a)
            | otherwise = euclid (a-b) b
 
--- and' all True in list
-and' :: [Bool] -> Bool
-and' [] = True
-and' [x] = x
-and' (x:xs) | x == False = False
-            | otherwise = and' xs
+-- ands' all True in list
+ands' :: [Bool] -> Bool
+ands' [] = True
+ands' [x] = x
+ands' (x:xs) | x == False = False
+             | otherwise = ands' xs
 
 -- concatanate list of lists
 concat' :: [[a]] -> [a]
@@ -252,3 +252,57 @@ merge [] y = y
 merge x [] = x
 merge (x:xs) (y:ys) | x < y = x : merge xs (y:ys)
                     | otherwise = y : merge (x:xs) ys
+
+-- Non recursive map
+mapnr :: (a -> b) -> [a] -> [b]
+mapnr _ [] = []
+mapnr f xs = [ f x | x <- xs ]
+
+-- Non recursive filter
+filternr :: (a -> Bool) -> [a] -> [a]
+filternr f xs = [ x | x <- xs, f x ]
+
+-- takeWhile predicate is true
+takeWhile' :: (a -> Bool) -> [a] -> [a]
+takeWhile' _ [] = []
+takeWhile' f (x:xs) | f x = [x] ++ takeWhile' f xs
+                    | otherwise = []
+
+-- dropWhile predicate is true
+dropWhile' :: (a -> Bool) -> [a] -> [a]
+dropWhile' _ [] = []
+dropWhile' f (x:xs) | f x =  dropWhile' f xs
+                    | otherwise = x:xs
+
+-- or on a list
+or' :: [Bool] -> Bool
+or' [] = False
+or' (x:xs) = x || or' xs
+
+-- and on a list
+and' :: [Bool] -> Bool
+and' [] = True
+and' (x:xs) = x && and' xs
+
+-- foldr fold right 
+foldr' :: (a -> b -> b) -> b -> [a] -> b
+foldr' f v [] = v
+foldr' f v (x:xs) = f x (foldr' f v xs)
+
+-- Additon of Int
+(+!) :: Int -> Int -> Int
+a +! b = a + b
+
+
+-- simulate foldl sum
+suml :: Num a => [a] -> a
+suml = suml' 0
+       where suml' v []  = v
+             suml' v (x:xs) = suml' (v+x) xs
+
+-- Composition
+-- Apply a function twice
+twice f = f . f
+-- to be continued
+--
+
