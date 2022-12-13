@@ -112,8 +112,8 @@ shift :: Int -> Char -> Char
 shift n c | isLower c = int2char( (char2int(c) + n)  `mod` 26)
           | otherwise = c
 
-encode :: Int -> String -> String
-encode n xs = [ shift n x | x <- xs ]
+encode' :: Int -> String -> String
+encode' n xs = [ shift n x | x <- xs ]
 
 -- Nested loops
 -- Tuples of 0 <= x <= m and 0 <= y << n for all (x, y)
@@ -305,4 +305,36 @@ suml = suml' 0
 twice f = f . f
 -- to be continued
 --
+type Bit = Int
+bin2int :: [Bit] -> Int
+bin2int bits = sum[ w * b | (w, b) <- zip weights (reverse bits)]
+                                    where weights = iterate (*2) 1
 
+bin2int' :: [Bit] -> Int
+bin2int' [] = 0 
+bin2int' [x] = x
+bin2int' (x:xs) = (x * 2 ^ (length (xs))) + bin2int' xs
+
+int2bin :: Int -> [Bit]
+int2bin 0 = []
+int2bin n = int2bin (n `div` 2) ++ [n `mod` 2]  
+
+make8 :: [Bit] -> [Bit]
+make8 bits = replicate (8 - length bits) 0 ++ bits 
+
+-- Transmission Exercise
+encode :: String -> [Bit]
+encode = concat . map (make8 . int2bin . ord)
+
+chop8 :: [Bit] -> [[Bit]]
+chop8 [] = []
+chop8 xs = take 8 xs : (chop8 (drop 8 xs))
+
+decode :: [Bit] -> String
+decode = map (chr . bin2int) . chop8
+
+transmit :: String -> String
+transmit = decode . channel . encode
+
+channel :: [Bit] -> [Bit]
+channel = id
