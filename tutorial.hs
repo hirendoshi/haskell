@@ -1,4 +1,5 @@
 import Data.Char
+import Data.List
 
 in_range :: Int -> Int -> Int -> Bool
 in_range min max x = let lb = min <= x
@@ -155,17 +156,17 @@ reverse' (x:xs) = reverse' xs Prelude.++ [x]
 [] +# ys  = ys
 (x:xs) +# ys = x : (xs +# ys)
 
--- Insert a elemement in a sorted array
-insert :: Ord a => a -> [a] -> [a]
-insert e [] = [e]
-insert e (x:xs) | e < x = e : x : xs
-                | otherwise = x : insert e xs
+-- insert' a elemement in a sorted array
+insert' :: Ord a => a -> [a] -> [a]
+insert' e [] = [e]
+insert' e (x:xs) | e < x = e : x : xs
+                | otherwise = x : insert' e xs
 
 
--- Insertion sort
+-- insert'ion sort
 isort :: Ord a => [a] -> [a]
 isort [] = []
-isort (x:xs) = insert x (isort xs)
+isort (x:xs) = insert' x (isort xs)
 
 drop' :: Int -> [a] -> [a]
 drop' 0 xs = xs
@@ -305,6 +306,24 @@ suml = suml' 0
 twice f = f . f
 -- to be continued
 --
+--
+--Trying to wrap my head around fold
+-- combine is foldl
+combine :: (a -> b -> b) -> b -> [a] -> b
+combine f v [] = v
+combine f v (x:xs) = f x (combine f v xs)
+
+mysum :: Num a => [a] -> a
+mysum xs = combine (+) 0 xs
+
+mylength :: [a] -> Int
+mylength  = combine (\_ y -> y + 1) 0 
+
+foldl' :: (a -> b -> a) -> a -> [b] -> a
+foldl' f v [] = v
+foldl' f v (x:xs) = Main.foldl' f (f v x) xs
+
+
 type Bit = Int
 bin2int :: [Bit] -> Int
 bin2int bits = sum[ w * b | (w, b) <- zip weights (reverse bits)]
@@ -338,3 +357,51 @@ transmit = decode . channel . encode
 
 channel :: [Bit] -> [Bit]
 channel = id
+
+count :: Eq a => a -> [a] -> Int
+count x = length . (filter (==x))
+
+rmdups :: Eq a => [a] -> [a]
+rmdups [] = []
+rmdups (x:xs) = x : rmdups (filter (/= x) (xs))
+
+results :: Ord a => [a] -> [(Int, a)]
+results vs = sort [(count v vs, v ) | v <- rmdups vs]
+
+winner :: Ord a => [a] -> a
+winner = snd . last . results
+
+
+-- Problems
+-- sum of the length of list of list
+--
+sumlength :: [[a]] -> Int
+sumlength [] = 0
+sumlength (x:xs) = length x + sumlength xs
+
+is_even n = n `mod` 2 == 0
+
+-- Even numbers in a list
+even_only :: [Int] -> [Int]
+even_only [] = []
+even_only (n:ns) | is_evens n == True = [n] ++ even_only ns
+                 | otherwise = even_only ns
+                 where 
+                 is_evens :: Int -> Bool
+                 is_evens n = (n `mod` 2 == 0)
+
+
+-- Types and Data
+-- e.g. type for key value pair
+type Assoc k v = [(k, v)]
+find' :: Eq k => k -> Assoc k v -> v
+find' k t = head [ v | (k', v) <- t , k == k']
+
+data Shape = Circle Float | Rect Float Float
+
+square :: Float -> Shape
+square n = Rect n n
+
+area :: Shape -> Float
+area (Circle r) = pi * r^2
+area (Rect x y) = x * y
