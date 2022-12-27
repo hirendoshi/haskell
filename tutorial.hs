@@ -390,6 +390,20 @@ even_only (n:ns) | is_evens n == True = [n] ++ even_only ns
                  is_evens :: Int -> Bool
                  is_evens n = (n `mod` 2 == 0)
 
+-- Higher order functions
+--
+twice' :: (a -> a) -> a -> a
+twice' f x = f (f x)
+
+myfilter :: (a -> Bool) -> [a] -> [a]
+myfilter _ [] = []
+myfilter f (x:xs) | f x == True = x : myfilter f xs
+                  | otherwise = myfilter f xs
+
+myfoldr :: (a -> b -> b) -> b -> [a] -> b
+myfoldr f v [] = v
+myfoldr f v (x:xs) =  f x (myfoldr f v xs)
+
 
 -- Types and Data
 -- e.g. type for key value pair
@@ -405,3 +419,11 @@ square n = Rect n n
 area :: Shape -> Float
 area (Circle r) = pi * r^2
 area (Rect x y) = x * y
+
+safediv :: Int -> Int -> Maybe Int
+safediv a 0 = Nothing
+safediv a b = Just (a `div` b)
+
+safehead :: [a] -> Maybe a
+safehead [] = Nothing
+safehead (x:xs) = Just x
