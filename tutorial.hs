@@ -404,6 +404,8 @@ myfoldr :: (a -> b -> b) -> b -> [a] -> b
 myfoldr f v [] = v
 myfoldr f v (x:xs) =  f x (myfoldr f v xs)
 
+myreverse xs = myfoldr (\x y -> y ++ [x]) [] xs
+
 
 -- Types and Data
 -- e.g. type for key value pair
@@ -427,3 +429,44 @@ safediv a b = Just (a `div` b)
 safehead :: [a] -> Maybe a
 safehead [] = Nothing
 safehead (x:xs) = Just x
+
+data Nat = Zero | Succ Nat
+
+nat2int :: Nat -> Int
+nat2int Zero = 0
+nat2int (Succ n) = 1 + nat2int n
+
+int2nat :: Int -> Nat
+int2nat 0 = Zero
+int2nat n = Succ (int2nat (n-1))
+
+add' :: Nat -> Nat -> Nat
+add' Zero n = n
+add' m Zero = m
+add' m (Succ n) = Succ (add' m  n)
+
+mult' :: Nat -> Nat -> Nat
+mult' Zero _ = Zero
+mult' _ Zero = Zero
+mult' (Succ n) m  = add' (mult' m n)  m
+
+
+-- Expression Tree
+--
+data Expr =   Val Int 
+            | Add Expr Expr
+            | Mul Expr Expr
+
+--Val :: Expr -> Int
+--Add :: Expr -> Expr -> Expr
+--Mul :: Expr -> Expr -> Expr
+
+size :: Expr -> Int
+size (Val n) = 1
+size (Add a b) = size a + size b
+size (Mul x y) = size x + size y
+
+eval :: Expr -> Int
+eval (Val n) = n
+eval (Add a b) = eval a + eval b
+eval (Mul a b) = eval a * eval b
