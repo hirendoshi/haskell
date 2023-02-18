@@ -1,5 +1,11 @@
 data Op = Add | Sub | Mul | Div
 
+instance Show Op where
+    show Add = "+"
+    show Sub = "-"
+    show Mul = "*"
+    show Div = "/"
+
 apply :: Op -> Int -> Int -> Int
 apply Add x y = x + y
 apply Sub x y = x - y
@@ -12,3 +18,22 @@ valid Sub x y = x > y
 valid Mul _ _ = True
 valid Div x y = x `mod` y == 0
 
+
+data Expr = Val Int | App Op Expr Expr
+
+values :: Expr -> [Int]
+values (Val n) = [n]
+values (App _ l r) = values l ++ values r
+
+eval :: Expr -> [Int]
+eval (Val n) = [n | n > 0]
+eval (App o l r) = [apply o x y | x <- eval l, y <- eval r, valid o x y]
+
+
+instance Show Expr where
+    show (Val n) = show n
+    show (App o l r) = brak l ++ show o ++ brak r
+                        where
+                        brak (Val n) = show n
+                        brak e = "(" ++ show e ++ ")"
+                        

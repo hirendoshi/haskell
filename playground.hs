@@ -43,3 +43,7 @@ safediv a b = Just (a `div` b)
 safehead :: [a] -> Maybe a
 safehead [] = Nothing
 safehead xs = Just (head xs)
+
+work :: [a] -> [[a]]
+work [] = [[]]
+work (x:xs) = ys ++ map (x:) ys where ys = work xs

@@ -409,6 +409,55 @@ myreverse xs = myfoldr (\x y -> y ++ [x]) [] xs
 
 -- Types and Data
 -- e.g. type for key value pair
+
+type Pos = (Int, Int)
+origin :: Pos
+origin = (0, 0)
+
+mkpos :: (Int, Int)  -> Pos
+mkpos (x, y) = (x, y)
+
+left (x, y) = (x-1, y)
+right (x, y) = (x+1, y)
+up(x, y) = (x, y+1)
+down(x, y) = (x, y-1)
+
+data Move = Left | Right | Up | Down
+
+move :: Move -> Pos -> Pos
+move Main.Left (x, y) = (x-1, y)
+move Main.Right (x, y) = (x+1, y)
+move Up (x, y) = (x, y+1)
+move Down t = down t
+
+moves :: [Move] -> Pos -> Pos
+moves [] p = p
+moves (m:mx) p = moves mx (move m p)
+
+type Pair a  = (a, a)
+mult :: Pair Int -> Int
+mult (a, b) = a * b
+
+copy :: a -> Pair a
+copy a = (a, a)
+
+type Pairs a b = (a, b)
+mkpair :: a -> b -> Pairs a b
+mkpair a b = (a, b)
+
+data Answer = Yes | No | Unknown
+answers = [Yes, No, Unknown]
+
+instance Show Answer where
+    show Yes = "Yes"
+    show No = "No"
+    show Unknown = "Unknown"
+
+flip' :: Answer -> Answer
+flip' Yes = No
+flip' No = Yes
+flip' Unknown = Unknown
+
 type Assoc k v = [(k, v)]
 find' :: Eq k => k -> Assoc k v -> v
 find' k t = head [ v | (k', v) <- t , k == k']
@@ -470,3 +519,10 @@ eval :: Expr -> Int
 eval (Val n) = n
 eval (Add a b) = eval a + eval b
 eval (Mul a b) = eval a * eval b
+
+subs :: [a] -> [[a]]
+subs [] = [[]]
+subs (x:xs) = yss ++ map(x:) yss where yss = subs xs
+
+choices :: [a] -> [[a]]
+choices l = [x | s <- subs l, x <- permutations s]
