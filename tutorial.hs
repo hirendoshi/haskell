@@ -100,6 +100,20 @@ zip' [] _ = []
 zip' _ [] = []
 zip' (x:xs) (y:ys) = (x, y) : zip' xs ys
 
+zipwith' :: (a -> b -> c) -> [a] -> [b] -> [c]
+zipwith' f (x:xs) (y:ys) = f x y : zipwith' f xs ys
+zipwith' _ [] _ = []
+
+position' :: Eq a => a -> [a] -> Int
+position' x xs = position2 0 x xs
+
+position2 :: Eq a => Int -> a -> [a] -> Int
+position2 _ _ [] = -1
+position2 p x' (x:xs) | x == x' = p 
+                      | otherwise = position2 (p+1) x' xs
+ 
+    
+
 positions :: Eq a => a -> [a] -> [Int]
 positions x xs = [ i | (i, x') <- zip' [0..] xs,  x' == x  ]
 
@@ -527,8 +541,52 @@ subs (x:xs) = yss ++ map(x:) yss where yss = subs xs
 choices :: [a] -> [[a]]
 choices l = [x | s <- subs l, x <- permutations s]
 
+
 until' :: (Num a) => (a -> Bool) -> (a -> a) -> a -> a
 until' p f = go
     where
         go x | p x = x
              | otherwise = go (f x)
+
+mycons :: [a] -> [a] -> [a]
+mycons [] ys = ys
+mycons (x:xs) ys = x : mycons xs ys
+
+mymap :: (a -> b) -> [a] -> [b]
+mymap _ [] = []
+mymap f (x:xs) = f x : mymap f xs
+
+myfilter' :: (a -> Bool) -> [a] -> [a]
+myfilter' p [] = []
+myfilter' p (x:xs) = if p x then x : myfilter' p xs else myfilter' p xs
+
+data Maybe2 a = Just2 a | Nothing2 deriving Show
+
+instance Functor Maybe2 where
+    fmap func (Just2 a) = Just2 (func a)
+    fmap _ Nothing2 = Nothing2 
+
+floor' ::  Float -> Integer
+floor' x | (compare x 0 == LT) = until ( (<= x) . fromInteger ) (subtract 1) (-1)
+         | otherwise = until ( (>x) . fromInteger ) (+1) 1 - 1
+
+myiterate :: (a -> a) -> a -> [a]
+myiterate f x = x : myiterate f (f x)
+
+null' :: [a] -> Bool
+null' [] = True
+null' (x:xs) = False
+
+head' :: [a] -> a
+head' (x:_) = x
+
+tail' :: [a] -> [a]
+tail' (x:xs) = xs
+
+last' :: [a] -> a
+last' [x] = x
+last' (_:xs) = last' xs
+
+(+++) :: [a] -> [a] -> [a]
+(+++) [] ys = ys
+(+++) (x:xs) ys = x : (xs +++ ys)
