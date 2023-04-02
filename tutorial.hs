@@ -526,3 +526,9 @@ subs (x:xs) = yss ++ map(x:) yss where yss = subs xs
 
 choices :: [a] -> [[a]]
 choices l = [x | s <- subs l, x <- permutations s]
+
+until' :: (Num a) => (a -> Bool) -> (a -> a) -> a -> a
+until' p f = go
+    where
+        go x | p x = x
+             | otherwise = go (f x)
