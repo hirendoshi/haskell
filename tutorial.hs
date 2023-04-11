@@ -1,6 +1,5 @@
 import Data.Char
 import Data.List
-import GHC.CmmToAsm.AArch64.Instr (x0)
 
 in_range :: Int -> Int -> Int -> Bool
 in_range min max x = let lb = min <= x
@@ -541,6 +540,13 @@ subs (x:xs) = yss ++ map(x:) yss where yss = subs xs
 
 choices :: [a] -> [[a]]
 choices l = [x | s <- subs l, x <- permutations s]
+
+
+until' :: (Num a) => (a -> Bool) -> (a -> a) -> a -> a
+until' p f = go
+    where
+        go x | p x = x
+             | otherwise = go (f x)
 
 mycons :: [a] -> [a] -> [a]
 mycons [] ys = ys
