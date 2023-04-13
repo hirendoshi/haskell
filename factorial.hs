@@ -1,4 +1,4 @@
 factorial' :: Integer -> Integer
-factorial' 0 = 1
-factorial' 1 = 1
-factorial' n = n * factorial' (n - 1)
+factorial' n = 
+  let f n acc = if n <= 0 then acc else f (n-1) (acc * n)
+  in f n 1
